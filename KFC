@@ -1,0 +1,124 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KFC vs McDonald's</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        select {
+            padding: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        h1 {
+            color: #333;
+        }
+        .content {
+            display: none;
+        }
+        .content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <select id="languageSelect" onchange="switchLanguage()">
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+        <option value="es">Español</option>
+    </select>
+
+    <div id="en" class="content active">
+        <h1>KFC vs McDonald's: Which is Tastier?</h1>
+        <p>When it comes to fast food, KFC and McDonald's are two giants battling for your taste buds. Here's a quick comparison to help you decide which one reigns supreme.</p>
+        <h2>KFC: The Fried Chicken King</h2>
+        <p>KFC is famous for its crispy, golden fried chicken, seasoned with its iconic 11 herbs and spices. The Colonel's recipe delivers a unique flavor that's hard to beat. Whether you love their Original Recipe or Extra Crispy, KFC's chicken is a comfort food staple. Their sides, like mashed potatoes with gravy and coleslaw, complement the meal perfectly.</p>
+        <h2>McDonald's: The Burger Empire</h2>
+        <p>McDonald's, on the other hand, is the go-to for burgers and fries. The Big Mac, with its special sauce, and the iconic golden fries are loved worldwide. McDonald's also offers a wider variety of options, from Chicken McNuggets to breakfast items like the Egg McMuffin, making it a versatile choice for any time of day.</p>
+        <h2>The Verdict</h2>
+        <p>It all comes down to preference: if you crave fried chicken and hearty sides, KFC is your pick. If you want quick burgers, fries, or a diverse menu, McDonald's has the edge. Why not try both and decide for yourself?</p>
+    </div>
+
+    <div id="zh" class="content">
+        <h1>肯德基 vs 麦当劳：哪个更好吃？</h1>
+        <p>在快餐界，肯德基和麦当劳是两家争夺你味蕾的巨头。以下是简短的对比，帮助你决定哪家更胜一筹。</p>
+        <h2>肯德基：炸鸡之王</h2>
+        <p>肯德基以其酥脆金黄的炸鸡而闻名，采用独特的11种草药和香料调味。上校的秘方带来无与伦比的风味。无论是原味鸡还是香脆鸡，肯德基的炸鸡都是经典的安慰食品。他们的配菜，如土豆泥配肉汁和凉拌卷心菜，完美搭配主菜。</p>
+        <h2>麦当劳：汉堡帝国</h2>
+        <p>另一方面，麦当劳是汉堡和薯条的首选。巨无霸汉堡及其特制酱料，以及标志性的金黄薯条，深受全球喜爱。麦当劳还提供更多样化的选择，从麦乐鸡到早餐单品如蛋堡，适合任何时段的用餐需求。</p>
+        <h2>结论</h2>
+        <p>最终取决于个人喜好：如果你喜欢炸鸡和丰盛的配菜，肯德基是你的选择。如果想要快速的汉堡、薯条或多样化菜单，麦当劳更占优势。不妨两家都试试，自己决定吧！</p>
+    </div>
+
+    <div id="es" class="content">
+        <h1>KFC vs McDonald's: ¿Cuál es más sabroso?</h1>
+        <p>En el mundo de la comida rápida, KFC y McDonald's son dos gigantes que compiten por conquistar tu paladar. Aquí tienes una breve comparación para ayudarte a decidir cuál es el mejor.</p>
+        <h2>KFC: El rey del pollo frito</h2>
+        <p>KFC es famoso por su pollo frito crujiente y dorado, sazonado con sus icónicas 11 hierbas y especias. La receta del Coronel ofrece un sabor único que es difícil de superar. Ya sea que prefieras la Receta Original o Extra Crujiente, el pollo de KFC es un clásico de comida reconfortante. Sus acompañamientos, como el puré de papas con salsa y el coleslaw, complementan perfectamente la comida.</p>
+        <h2>McDonald's: El imperio de las hamburguesas</h2>
+        <p>Por otro lado, McDonald's es la opción predilecta para hamburguesas y papas fritas. El Big Mac, con su salsa especial, y las icónicas papas fritas doradas son amadas en todo el mundo. McDonald's también ofrece una mayor variedad de opciones, desde McNuggets de pollo hasta elementos de desayuno como el Egg McMuffin, lo que lo convierte en una elección versátil para cualquier momento del día.</p>
+        <h2>El veredicto</h2>
+        <p>Todo se reduce a tus preferencias: si anhelas pollo frito y acompañamientos contundentes, KFC es tu elección. Si prefieres hamburguesas rápidas, papas fritas o un menú variado, McDonald's tiene la ventaja. ¿Por qué no probar ambos y decidir por ti mismo?</p>
+    </div>
+
+    <script>
+        function switchLanguage() {
+            const select = document.getElementById('languageSelect');
+            const selectedLang = select.value;
+            const contents = document.querySelectorAll('.content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === selectedLang) {
+                    content.classList.add('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
